@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-interface StockQuotationRepository extends PagingAndSortingRepository<StockQuotation, UUID> {
+public interface StockQuotationRepository extends PagingAndSortingRepository<StockQuotation, UUID> {
 
     List<StockQuotation> findByStock(@Param(value = "stock") String stock);
 
