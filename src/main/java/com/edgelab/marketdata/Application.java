@@ -6,19 +6,14 @@ import com.edgelab.marketdata.publisher.StockPublisher;
 import org.reactivestreams.Publisher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 
 @SpringBootApplication
+@EnableFeignClients
 public class Application {
-
-    @Bean
-    RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
 
     public static void main(String[] args) throws InterruptedException {
         ApplicationContext appContext = SpringApplication.run(Application.class, args);
