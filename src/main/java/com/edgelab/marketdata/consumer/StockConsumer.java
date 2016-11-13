@@ -2,9 +2,11 @@ package com.edgelab.marketdata.consumer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -13,9 +15,12 @@ public class StockConsumer {
 
     private final StockQuotationRepository repository;
 
-    public Iterable<StockQuotation> save(Collection<StockQuotation> stockQuotations) {
-        log.info("Thread[{}] saving quotations", Thread.currentThread().getName());
-        return repository.save(stockQuotations);
+    public void save(Publisher<StockQuotation> stockQuotations) {
+        Flux.from(stockQuotations)
+            .buffer(100)
+            .flatMap(quotes -> Mono.fromCallable(() -> repository.save(quotes))
+                .subscribeOn(Schedulers.parallel()))
+            .subscribe();
     }
 
 }
