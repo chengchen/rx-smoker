@@ -1,7 +1,6 @@
 package com.edgelab.marketdata.consumer;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -10,7 +9,6 @@ import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class StockConsumer {
 
     private final StockQuotationRepository repository;
@@ -21,6 +19,10 @@ public class StockConsumer {
             .flatMap(quotes -> Mono.fromCallable(() -> repository.save(quotes))
                 .subscribeOn(Schedulers.parallel()))
             .subscribe();
+    }
+
+    public StockQuotation save(StockQuotation stockQuotation) {
+        return repository.save(stockQuotation);
     }
 
 }
