@@ -21,7 +21,7 @@ public class StockQuotation {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(columnDefinition = "BINARY(16)")
+    @Column(columnDefinition = "VARBINARY(16)")
     private UUID id;
 
     @Column
