@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    '': INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
