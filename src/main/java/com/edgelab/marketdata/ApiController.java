@@ -36,13 +36,15 @@ public class ApiController {
         List<String> tickers = Arrays.asList("T", "AAPL", "OHI", "MAP.MC", "SAN.MC", "ABBN", "UBSG", "BABA");
 
         Flux.from(stockPublisher.fetchQuotes(tickers))
-            .flatMap(stockQuotation -> Mono.fromRunnable(() -> {
-                try {
-                    emitter.send(stockConsumer.save(stockQuotation), MediaType.APPLICATION_JSON);
-                } catch (Exception e) {
-                    log.error("fuck me", e);
-                }
-            }).subscribeOn(Schedulers.parallel()))
+            .flatMap(stockQuotation -> Mono.fromRunnable(() ->
+                stockConsumer.save(stockQuotation, r -> {
+                    try {
+                        emitter.send(r, MediaType.APPLICATION_JSON);
+                    } catch (IOException e) {
+                        log.error("fuck me");
+                    }
+                })
+            ).subscribeOn(Schedulers.parallel()))
             .doOnTerminate(emitter::complete)
             .subscribe();
 
