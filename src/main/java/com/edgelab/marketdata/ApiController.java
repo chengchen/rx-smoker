@@ -31,9 +31,10 @@ public class ApiController {
     @GetMapping("/feeds")
     public ResponseBodyEmitter fetchQuotes() throws IOException {
         ResponseBodyEmitter emitter = new ResponseBodyEmitter();
-        List<String> tickers = Arrays.asList("T", "AAPL", "OHI", "MAP.MC", "SAN.MC", "ABBN", "UBSG", "BABA");
+        List<String> tickers = Arrays.asList("AAPL", "ABBN", "UBSG", "BABA");
 
         Flux.from(stockPublisher.fetchQuotes(tickers))
+            .log("StockPublisher")
             .flatMap(stockQuotation -> Mono.fromRunnable(() -> {
                 try {
                     stockConsumer.save(stockQuotation);

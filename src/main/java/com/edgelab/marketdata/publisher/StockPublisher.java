@@ -24,7 +24,6 @@ public class StockPublisher {
 
     public Flux<StockQuotation> fetchQuotes(List<String> tickers) {
         return Flux.fromIterable(tickers)
-            .log()
             // Get the quotes in a separate thread
             .flatMap(ticker -> Mono.fromCallable(() -> feeder.getCSVQuotes(ticker))
                 .subscribeOn(Schedulers.parallel())
