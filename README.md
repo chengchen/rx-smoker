@@ -2,4 +2,6 @@
 
 Spring Boot + Reactor
 
-API: http://localhost:8080/stockQuotations
+APIs:
+http://localhost:8080/feeds
+http://localhost:8080/stockQuotations

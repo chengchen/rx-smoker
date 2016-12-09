@@ -2,3 +2,7 @@ spring:
   cache:
     caffeine:
       spec: expireAfterWrite=5s
+  datasource:
+    url: jdbc:h2:mem:smoker
+    username: smoker
+    password: smoker

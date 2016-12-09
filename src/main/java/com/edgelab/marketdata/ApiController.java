@@ -49,10 +49,10 @@ public class ApiController {
         return emitter;
     }
 
-    @GetMapping("/{uuid}")
+    @GetMapping("/stockQuotations/{uuid}")
     @Cacheable("quotes")
     public StockQuotation findQuote(@PathVariable UUID uuid) {
-        log.info("fetching from db");
+        log.info("Fetching for real from db");
         return repository.findOne(uuid);
     }
 
