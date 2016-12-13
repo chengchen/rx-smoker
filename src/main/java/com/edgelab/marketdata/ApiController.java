@@ -28,22 +28,29 @@ public class ApiController {
     private final StockConsumer stockConsumer;
     private final StockQuotationRepository repository;
 
-    @GetMapping("/feeds")
+    @GetMapping(value = "/feeds")
     public ResponseBodyEmitter fetchQuotes() throws IOException {
+
         ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+
+        stockConsumer.subscribe(stockQuotation -> {
+            try {
+                log.info("Sending stockQuotation: {}", stockQuotation);
+                emitter.send(stockQuotation);
+            } catch (Exception e) {
+                log.error("fuck me");
+            }
+        }, () -> {
+            log.info("Consumption completed!");
+            emitter.complete();
+        });
+
         List<String> tickers = Arrays.asList("AAPL", "ABBN", "UBSG", "BABA");
 
         Flux.from(stockPublisher.fetchQuotes(tickers))
             .log("StockPublisher")
-            .flatMap(stockQuotation -> Mono.fromRunnable(() -> {
-                try {
-                    stockConsumer.save(stockQuotation);
-                    emitter.send(stockQuotation);
-                } catch (Exception e) {
-                    log.error("fuck me");
-                }
-            }))
-            .doOnTerminate(emitter::complete)
+            .flatMap(stockQuotation -> Mono.fromRunnable(() -> stockConsumer.save(stockQuotation)))
+            .doOnComplete(stockConsumer::done)
             .subscribe();
 
         return emitter;
