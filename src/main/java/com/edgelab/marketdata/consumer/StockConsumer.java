@@ -25,23 +25,21 @@ public class StockConsumer {
     private Flux<StockQuotation> consumerFlux;
 
     @PostConstruct
-    private void setUpServiceCallFlux() {
+    private void consumerFlux() {
         consumerFlux = Flux.<StockQuotation>create(emitter -> quotesSink = emitter.serialize(), OverflowStrategy.ERROR)
             .log("StockConsumer")
             .buffer(100, Duration.ofSeconds(10))
             .flatMap(quotes -> Mono.fromSupplier(() -> repository.save(quotes)))
-            .flatMapIterable(Function.identity());
+            .flatMapIterable(Function.identity())
+            .publish().autoConnect();
     }
 
-    public Cancellation subscribe(Consumer<? super StockQuotation> consumer, Runnable completeConsumer) {
-        return consumerFlux.subscribe(consumer, error -> log.error("Error!", error), completeConsumer);
+    public Cancellation subscribe(Consumer<StockQuotation> consumer) {
+        return consumerFlux.subscribe(consumer);
     }
 
     public void save(StockQuotation stockQuotation) {
         quotesSink.next(stockQuotation);
     }
 
-    public void done() {
-        quotesSink.complete();
-    }
 }
