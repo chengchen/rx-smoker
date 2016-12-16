@@ -3,6 +3,7 @@ package com.edgelab.marketdata.consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.Cancellation;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.FluxSink.OverflowStrategy;
@@ -10,6 +11,8 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -19,14 +22,20 @@ public class StockConsumer {
     private final StockQuotationRepository repository;
 
     private FluxSink<StockQuotation> quotesSink;
+    private Flux<StockQuotation> consumerFlux;
 
     @PostConstruct
-    private void setUpServiceCallFlux() {
-        Flux.<StockQuotation>create(emitter -> quotesSink = emitter.serialize(), OverflowStrategy.ERROR)
+    private void consumerFlux() {
+        consumerFlux = Flux.<StockQuotation>create(emitter -> quotesSink = emitter.serialize(), OverflowStrategy.ERROR)
             .log("StockConsumer")
             .buffer(100, Duration.ofSeconds(10))
             .flatMap(quotes -> Mono.fromSupplier(() -> repository.save(quotes)))
-            .subscribe();
+            .flatMapIterable(Function.identity())
+            .publish().autoConnect();
+    }
+
+    public Cancellation subscribe(Consumer<StockQuotation> consumer) {
+        return consumerFlux.subscribe(consumer);
     }
 
     public void save(StockQuotation stockQuotation) {

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
-import reactor.core.publisher.Flux;
+import reactor.core.Cancellation;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -28,22 +28,24 @@ public class ApiController {
     private final StockConsumer stockConsumer;
     private final StockQuotationRepository repository;
 
-    @GetMapping("/feeds")
+    @GetMapping(value = "/feeds")
     public ResponseBodyEmitter fetchQuotes() throws IOException {
         ResponseBodyEmitter emitter = new ResponseBodyEmitter();
         List<String> tickers = Arrays.asList("AAPL", "ABBN", "UBSG", "BABA");
 
-        Flux.from(stockPublisher.fetchQuotes(tickers))
+        Cancellation consumerCancellation = stockConsumer.subscribe(stockQuotation -> {
+            try {
+                emitter.send(stockQuotation);
+            } catch (Exception e) {
+                log.error("fuck me", e);
+            }
+        });
+
+        stockPublisher.fetchQuotes(tickers)
             .log("StockPublisher")
-            .flatMap(stockQuotation -> Mono.fromRunnable(() -> {
-                try {
-                    stockConsumer.save(stockQuotation);
-                    emitter.send(stockQuotation);
-                } catch (Exception e) {
-                    log.error("fuck me");
-                }
-            }))
-            .doOnTerminate(emitter::complete)
+            .flatMap(stockQuotation -> Mono.fromRunnable(() -> stockConsumer.save(stockQuotation)))
+            .doOnComplete(consumerCancellation::dispose)
+            .doAfterTerminate(emitter::complete)
             .subscribe();
 
         return emitter;
