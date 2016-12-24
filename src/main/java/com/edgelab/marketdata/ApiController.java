@@ -1,12 +1,10 @@
 package com.edgelab.marketdata;
 
 import com.edgelab.marketdata.consumer.StockConsumer;
-import com.edgelab.marketdata.consumer.StockQuotation;
-import com.edgelab.marketdata.consumer.StockQuotationRepository;
+import com.edgelab.marketdata.consumer.StockStreamingService;
 import com.edgelab.marketdata.publisher.StockPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +24,7 @@ public class ApiController {
 
     private final StockPublisher stockPublisher;
     private final StockConsumer stockConsumer;
-    private final StockQuotationRepository repository;
+    private final StockStreamingService stockStreamingService;
 
     @GetMapping(value = "/feeds")
     public ResponseBodyEmitter fetchQuotes() throws IOException {
@@ -52,10 +50,20 @@ public class ApiController {
     }
 
     @GetMapping("/stockQuotations/{uuid}")
-    @Cacheable("quotes")
-    public StockQuotation findQuote(@PathVariable UUID uuid) {
+    public ResponseBodyEmitter findQuote(@PathVariable UUID uuid) {
+        ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+
         log.info("Fetching for real from db");
-        return repository.findOne(uuid);
+        stockStreamingService.fetch(uuid, stock -> {
+            try {
+                emitter.send(stock);
+            } catch (Exception e) {
+                log.error("fuck me", e);
+            } finally {
+                emitter.complete();
+            }
+        });
+        return emitter;
     }
 
 }
