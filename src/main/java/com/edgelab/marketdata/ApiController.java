@@ -1,6 +1,7 @@
 package com.edgelab.marketdata;
 
 import com.edgelab.marketdata.consumer.StockConsumer;
+import com.edgelab.marketdata.consumer.StockQuotationRepository;
 import com.edgelab.marketdata.consumer.StockStreamingService;
 import com.edgelab.marketdata.publisher.StockPublisher;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class ApiController {
     private final StockPublisher stockPublisher;
     private final StockConsumer stockConsumer;
     private final StockStreamingService stockStreamingService;
+    private final StockQuotationRepository repository;
 
     @GetMapping(value = "/feeds")
     public ResponseBodyEmitter fetchQuotes() throws IOException {
@@ -57,6 +59,7 @@ public class ApiController {
         stockStreamingService.fetch(uuid, stock -> {
             try {
                 emitter.send(stock);
+                emitter.send(repository.findRevisions(uuid));
             } catch (Exception e) {
                 log.error("fuck me", e);
             } finally {
