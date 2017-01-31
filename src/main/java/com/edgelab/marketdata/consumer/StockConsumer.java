@@ -3,7 +3,7 @@ package com.edgelab.marketdata.consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.Cancellation;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.FluxSink.OverflowStrategy;
@@ -34,7 +34,7 @@ public class StockConsumer {
             .publish().autoConnect();
     }
 
-    public Cancellation subscribe(Consumer<StockQuotation> consumer) {
+    public Disposable subscribe(Consumer<StockQuotation> consumer) {
         return consumerFlux.subscribe(consumer);
     }
 

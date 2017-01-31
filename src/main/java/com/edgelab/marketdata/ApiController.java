@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
-import reactor.core.Cancellation;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class ApiController {
         ResponseBodyEmitter emitter = new ResponseBodyEmitter();
         List<String> tickers = Arrays.asList("AAPL", "ABBN", "UBSG", "BABA");
 
-        Cancellation consumerCancellation = stockConsumer.subscribe(stockQuotation -> {
+        Disposable consumerCancellation = stockConsumer.subscribe(stockQuotation -> {
             try {
                 emitter.send(stockQuotation);
             } catch (Exception e) {
