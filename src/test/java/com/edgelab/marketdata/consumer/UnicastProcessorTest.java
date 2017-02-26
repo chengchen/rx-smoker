@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
 public class UnicastProcessorTest {
 
     @Test
-    public void testWithoutBuffer() {
+    public void testWithoutBuffer_whichPasses() {
         final UnicastProcessor<String> processor = UnicastProcessor.create();
 
         final Publisher<Integer> publisher = processor.map(String::length);
@@ -33,12 +33,12 @@ public class UnicastProcessorTest {
     }
 
     @Test
-    public void testWithBuffer() {
+    public void testWithBuffer_whichDoesNotPass() {
         final UnicastProcessor<String> processor = UnicastProcessor.create();
 
         final Publisher<Integer> publisher = processor
             .bufferTimeout(5, Duration.ofSeconds(1))
-            .map(l -> l.stream().map(String::length).collect(toList()))
+            .map(words -> words.stream().map(String::length).collect(toList()))
             .flatMapIterable(Function.identity());
 
         processor.onNext("foo");
