@@ -22,13 +22,14 @@ public class StockConsumer {
     private final StockQuotationRepository repository;
 
     private FluxSink<StockQuotation> quotesSink;
+
     private Flux<StockQuotation> consumerFlux;
 
     @PostConstruct
     private void consumerFlux() {
         consumerFlux = Flux.<StockQuotation>create(emitter -> quotesSink = emitter.serialize(), OverflowStrategy.ERROR)
             .log("StockConsumer")
-            .buffer(100, Duration.ofSeconds(10))
+            .bufferTimeout(100, Duration.ofSeconds(10))
             .flatMap(quotes -> Mono.fromSupplier(() -> repository.save(quotes)))
             .flatMapIterable(Function.identity())
             .publish().autoConnect();

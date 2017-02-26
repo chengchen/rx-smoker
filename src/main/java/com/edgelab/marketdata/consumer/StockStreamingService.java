@@ -20,13 +20,14 @@ public class StockStreamingService {
     private final StockQuotationRepository repository;
 
     private FluxSink<UUID> uuidSink;
+
     private Flux<StockQuotation> stockStream;
 
     @PostConstruct
     private void stockStream() {
         stockStream = Flux.<UUID>create(emitter -> uuidSink = emitter.serialize(), OverflowStrategy.ERROR)
             .log("StockStream")
-            .buffer(100, Duration.ofSeconds(1))
+            .bufferTimeout(100, Duration.ofSeconds(1))
             .flatMap(ids -> Mono.fromSupplier(() -> repository.findAll(ids)))
             .flatMapIterable(Function.identity())
             .publish().autoConnect();

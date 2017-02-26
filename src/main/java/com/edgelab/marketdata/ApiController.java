@@ -24,8 +24,11 @@ import java.util.UUID;
 public class ApiController {
 
     private final StockPublisher stockPublisher;
+
     private final StockConsumer stockConsumer;
+
     private final StockStreamingService stockStreamingService;
+
     private final StockQuotationRepository repository;
 
     @GetMapping(value = "/feeds")
