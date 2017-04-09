@@ -25,9 +25,9 @@ public class StockStreamingService {
 
     @PostConstruct
     private void stockStream() {
-        stockStream = Flux.<UUID>create(emitter -> uuidSink = emitter.serialize(), OverflowStrategy.ERROR)
+        stockStream = Flux.<UUID>create(emitter -> uuidSink = emitter, OverflowStrategy.ERROR)
             .log("StockStream")
-            .bufferTimeout(100, Duration.ofSeconds(1))
+            .bufferTimeout(100, Duration.ofMillis(100))
             .flatMap(ids -> Mono.fromSupplier(() -> repository.findAll(ids)))
             .flatMapIterable(Function.identity())
             .publish().autoConnect();
@@ -37,7 +37,8 @@ public class StockStreamingService {
         Mono.from(stockStream)
             .log("SingleFetch")
             .filter(stockQuotation -> stockQuotation.getId().equals(id))
-            .onTerminateDetach().subscribe(consumer);
+            .onTerminateDetach()
+            .subscribe(consumer);
 
         uuidSink.next(id);
     }

@@ -27,7 +27,7 @@ public class StockConsumer {
 
     @PostConstruct
     private void consumerFlux() {
-        consumerFlux = Flux.<StockQuotation>create(emitter -> quotesSink = emitter.serialize(), OverflowStrategy.ERROR)
+        consumerFlux = Flux.<StockQuotation>create(emitter -> quotesSink = emitter, OverflowStrategy.ERROR)
             .log("StockConsumer")
             .bufferTimeout(100, Duration.ofSeconds(10))
             .flatMap(quotes -> Mono.fromSupplier(() -> repository.save(quotes)))

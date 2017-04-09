@@ -22,7 +22,7 @@
         <java.version>1.8</java.version>
 
         <javax.inject.version>1</javax.inject.version>
-        <reactor.version>3.0.5.RELEASE</reactor.version>
+        <reactor.version>3.0.6.RELEASE</reactor.version>
         <spring-cloud-dependencies.version>Camden.SR6</spring-cloud-dependencies.version>
     </properties>
 
@@ -49,19 +49,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-envers</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-feign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
         <dependency>
@@ -69,8 +61,8 @@
             <artifactId>reactor-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

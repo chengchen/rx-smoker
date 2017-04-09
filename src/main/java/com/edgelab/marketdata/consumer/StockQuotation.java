@@ -2,8 +2,8 @@ package com.edgelab.marketdata.consumer;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,7 +17,7 @@ import static java.lang.String.format;
 @Entity
 @Getter
 @Setter
-@Audited
+@Accessors(chain = true)
 public class StockQuotation {
 
     @Id
