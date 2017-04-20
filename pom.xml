@@ -24,6 +24,7 @@
         <javax.inject.version>1</javax.inject.version>
         <reactor.version>3.0.6.RELEASE</reactor.version>
         <spring-cloud-dependencies.version>Dalston.RELEASE</spring-cloud-dependencies.version>
+        <kryo.version>4.0.0</kryo.version>
     </properties>
 
     <dependencyManagement>
@@ -71,7 +72,7 @@
         <dependency>
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
-            <version>4.0.0</version>
+            <version>${kryo.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

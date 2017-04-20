@@ -35,7 +35,7 @@ public class Application {
     }
 
     @Bean
-    RedisTemplate redisTemplate(RedisTemplate redisTemplate, RedisSerializer<Container> redisSerializer) {
+    RedisTemplate redisTemplate(RedisTemplate<?, ?> redisTemplate, RedisSerializer<Container> redisSerializer) {
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(redisSerializer);
         return redisTemplate;
@@ -44,6 +44,8 @@ public class Application {
     @Bean
     RedisSerializer<Container> redisSerializer() {
         return new RedisSerializer<Container>() {
+
+            // FIXME Kryo is expensive to construct (PoC only)
 
             @Override
             public byte[] serialize(Container container) throws SerializationException {
