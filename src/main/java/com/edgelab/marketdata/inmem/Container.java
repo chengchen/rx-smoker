@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Quote {
+public class Container {
 
-    private String id;
+    private Object o1;
 
-    private String value;
+    private Object o2;
 
 }
