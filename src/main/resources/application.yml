@@ -3,6 +3,3 @@ spring:
     url: jdbc:h2:mem:smoker
     username: smoker
     password: smoker
-  redis:
-    host: localhost
-    port: 6379
