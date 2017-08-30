@@ -1,28 +1,43 @@
 package com.edgelab.marketdata;
 
-import com.edgelab.marketdata.publisher.StockService;
+import com.edgelab.marketdata.domain.Quote;
+import com.edgelab.marketdata.domain.QuoteService;
+import com.edgelab.marketdata.domain.Stock;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
+import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 public class ApiController {
 
-    private final StockService stockService;
+    private final QuoteService quoteService;
 
     @GetMapping(value = "/feeds")
-    public void fetchQuotes() throws IOException {
-        Flux.range(1, 100)
-            .flatMap(i -> Mono.defer(stockService::createStock).subscribeOn(Schedulers.parallel()))
-            .subscribe(s -> log.info("Saved {}", s));
+    public void feedQuotes() {
+        Flux.range(1, 10000)
+            .map(this::buildStock)
+            .flatMap(this::buildQuotes)
+            .doOnNext(quote -> quoteService.write(quote.getTicker(), quote.getDate(), quote.getValue()))
+            .subscribe();
+    }
+
+    private Stock buildStock(Integer i) {
+        return new Stock(i, i.toString());
+    }
+
+    private Flux<Quote> buildQuotes(Stock stock) {
+        return Flux.range(1, 10000)
+            .map(i -> new Quote(stock.getTicker(), Instant.now().plusSeconds(i), Math.random()));
+    }
+
+    @GetMapping(value = "/fetch")
+    public List<Quote> fetchQuotes() {
+        return quoteService.fetchQuotes("1555");
     }
 
 }
