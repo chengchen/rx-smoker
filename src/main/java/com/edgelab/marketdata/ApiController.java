@@ -20,7 +20,7 @@ public class ApiController {
 
     @GetMapping(value = "/feeds")
     public void feedQuotes() {
-        Flux.range(1, 1000)
+        Flux.range(1, 1000000)
             .map(this::buildStock)
             .flatMap(this::buildQuotes)
             .doOnNext(quote -> quoteService.write(quote.getTicker(), quote.getDate(), quote.getValue()))
