@@ -27,7 +27,7 @@ public class QuoteService {
         influxDB = InfluxDBFactory.connect("http://localhost:8086");
         influxDB.createDatabase(DB_NAME);
         influxDB.setDatabase(DB_NAME);
-        influxDB.enableBatch(2000, 200, TimeUnit.MILLISECONDS);
+        influxDB.enableBatch(4000, 200, TimeUnit.MILLISECONDS);
         influxDB.enableGzip();
     }
 
