@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.6.RELEASE</version>
+        <version>1.5.8.RELEASE</version>
     </parent>
 
     <properties>
@@ -22,10 +22,12 @@
         <java.version>1.8</java.version>
 
         <javax.inject.version>1</javax.inject.version>
-        <reactor.version>3.0.7.RELEASE</reactor.version>
-        <spring-cloud-dependencies.version>Dalston.RELEASE</spring-cloud-dependencies.version>
-        <javers-core.version>3.5.0</javers-core.version>
+        <reactor.version>3.1.0.RELEASE</reactor.version>
+        <spring-cloud-dependencies.version>Dalston.SR4</spring-cloud-dependencies.version>
+        <javers-core.version>3.6.0</javers-core.version>
         <influxdb-java.version>2.7</influxdb-java.version>
+        <cassandra-unit.version>3.3.0.2</cassandra-unit.version>
+        <cassandra-driver-core.version>3.3.0</cassandra-driver-core.version>
     </properties>
 
     <dependencyManagement>
@@ -86,6 +88,11 @@
             <artifactId>influxdb-java</artifactId>
             <version>${influxdb-java.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>${cassandra-driver-core.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -93,9 +100,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.projectreactor.addons</groupId>
+            <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
             <version>${reactor.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.cassandraunit</groupId>
+            <artifactId>cassandra-unit-spring</artifactId>
+            <version>${cassandra-unit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
