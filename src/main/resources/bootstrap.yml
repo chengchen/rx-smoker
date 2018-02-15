@@ -5,7 +5,7 @@ spring:
       port: 8500
       discovery:
         enabled: false
-        instanceId: ${spring.application.name}:${random.value}
+        service-name: ${spring.application.name}
       config:
         prefix: services
         data-key: config

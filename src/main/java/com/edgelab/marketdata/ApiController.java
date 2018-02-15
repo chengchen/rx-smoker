@@ -1,5 +1,6 @@
 package com.edgelab.marketdata;
 
+import com.edgelab.marketdata.config.LeaderConfig;
 import com.edgelab.marketdata.domain.Stock;
 import com.edgelab.marketdata.domain.StockRepository;
 import com.google.common.base.Stopwatch;
@@ -16,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 public class ApiController {
 
     private final StockRepository stockRepository;
+    private final LeaderConfig leaderConfig;
+
 
     @GetMapping(value = "/feeds")
     public Iterable<Stock> feedQuotes() {
@@ -25,6 +28,11 @@ public class ApiController {
         log.info("Elapsed: " + stopwatch.elapsed(TimeUnit.SECONDS));
 
         return stocks;
+    }
+
+    @GetMapping(value = "/elect")
+    public void elect() {
+        leaderConfig.electLeader();
     }
 
 }
