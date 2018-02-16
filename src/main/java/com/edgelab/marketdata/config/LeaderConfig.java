@@ -9,12 +9,14 @@ import com.ecwid.consul.v1.session.model.NewSession;
 import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@EnableScheduling
 @Slf4j
 public class LeaderConfig {
 
@@ -23,17 +25,19 @@ public class LeaderConfig {
     private final ConsulClient consulClient;
 
     public void electLeader() {
+        if (!hasLeader()) {
+            String sessionId = createSession();
+            acquireLeadership(sessionId);
+        }
+    }
+
+    private String createSession() {
         NewSession newSession = new NewSession();
         newSession.setChecks(CHECKS);
 
-        String sessionId = createSession(newSession);
-        acquireLeadership(sessionId);
-        checkCurrentLeader();
-    }
-
-    private String createSession(NewSession newSession) {
         Response<String> session =  consulClient.sessionCreate(newSession, QueryParams.DEFAULT);
         String sessionId = session.getValue();
+
         log.info("SESSION ID: {}", sessionId);
         return sessionId;
     }
@@ -46,11 +50,15 @@ public class LeaderConfig {
         log.info("ACQUIRE LEADER LOCK: {}", response);
     }
 
-    private void checkCurrentLeader() {
-        Response<GetValue> valueResponse = consulClient.getKVValue("services/rx-smoker/leader");
+    private boolean hasLeader() {
+        QueryParams queryParams = new QueryParams(30, -1);
+        Response<GetValue> valueResponse = consulClient.getKVValue("services/rx-smoker/leader", queryParams);
 
-        if (valueResponse.getValue() != null) {
-            log.info("CURRENT LEADER: {}", valueResponse.getValue().getDecodedValue());
+        if (valueResponse.getValue() != null && valueResponse.getValue().getSession() != null) {
+            log.info("CURRENT LEADER: {}", valueResponse.getValue().getSession());
+            return true;
+        } else {
+            return false;
         }
     }
 
