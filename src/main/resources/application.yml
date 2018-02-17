@@ -8,9 +8,9 @@ spring:
 
 leader:
   election:
-    lock-key: services/rx-smoker/leader
-    self-id: je suis le roi
+    lock-key: services/${spring.application.name}/leader
+    self-id: ${INSTANCE_ID}
     polling-delay: 10000 # milliseconds
     checks:
-      - service:rx-smoker
-      - serfHealth
+      - service:rx-smoker # application health check
+      - serfHealth # consul node health check

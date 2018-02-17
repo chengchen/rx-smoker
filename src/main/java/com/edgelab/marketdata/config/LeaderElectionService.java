@@ -8,7 +8,9 @@ import com.ecwid.consul.v1.kv.model.PutParams;
 import com.ecwid.consul.v1.session.model.NewSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +29,14 @@ public class LeaderElectionService {
     private final AtomicBoolean isLeader = new AtomicBoolean(false);
     private long lockVersion = -1;
 
-    public void start() {
-        started.compareAndSet(false, true);
-    }
-
     public boolean isLeader() {
         return isLeader.get();
+    }
+
+    @EventListener
+    private void startWhenReady(ApplicationReadyEvent event) {
+        log.info("Starting leader election..");
+        started.compareAndSet(false, true);
     }
 
     @Scheduled(fixedDelayString = "${leader.election.polling-delay}")
@@ -43,7 +47,7 @@ public class LeaderElectionService {
 
             if (hasLeader(lock.getValue())) {
                 String leaderId = lock.getValue().getDecodedValue();
-                log.info("Current leader: {} ({})", leaderId, lock.getConsulIndex());
+                log.debug("Current leader: {} ({})", leaderId, lock.getConsulIndex());
 
                 lockVersion = lock.getConsulIndex();
                 isLeader.set(config.getSelfId().equals(leaderId));

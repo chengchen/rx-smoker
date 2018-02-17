@@ -29,10 +29,9 @@ public class ApiController {
         return stocks;
     }
 
-    @GetMapping(value = "/elect")
-    public void elect() {
-        leaderElectionService.start();
-        log.info("IS LEADER: {}", leaderElectionService.isLeader());
+    @GetMapping(value = "/leader")
+    public boolean leader() {
+        return leaderElectionService.isLeader();
     }
 
 }
