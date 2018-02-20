@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @EnableConfigurationProperties(LeaderElectionConfig.class)
@@ -24,10 +25,11 @@ public class LeaderElectionService {
 
     private final ConsulClient consulClient;
     private final LeaderElectionConfig config;
+    private final HealthCheckProvider healthCheckProvider;
 
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean isLeader = new AtomicBoolean(false);
-    private long lockVersion = -1;
+    private final AtomicLong lockVersion = new AtomicLong(-1);
 
     public boolean isLeader() {
         return isLeader.get();
@@ -42,17 +44,17 @@ public class LeaderElectionService {
     @Scheduled(fixedDelayString = "${leader.election.polling-delay}")
     private void competeForLeader() {
         if (started.get()) {
-            QueryParams queryParams = new QueryParams(50, lockVersion);
-            Response<GetValue> lock = consulClient.getKVValue(config.getLockKey(), queryParams);
+            QueryParams queryParams = new QueryParams(config.getPollingDuration(), lockVersion.get());
+            Response<GetValue> lock = consulClient.getKVValue(config.getLockKey(), config.getToken(), queryParams);
 
             if (hasLeader(lock.getValue())) {
                 String leaderId = lock.getValue().getDecodedValue();
                 log.debug("Current leader: {} ({})", leaderId, lock.getConsulIndex());
 
-                lockVersion = lock.getConsulIndex();
-                isLeader.set(config.getSelfId().equals(leaderId));
+                lockVersion.set(lock.getConsulIndex());
+                isLeader.set(config.getInstanceId().equals(leaderId));
             } else {
-                isLeader.set(acquireLeadership(config.getSelfId()));
+                isLeader.set(acquireLeadership(config.getInstanceId()));
             }
         }
     }
@@ -62,7 +64,7 @@ public class LeaderElectionService {
     }
 
     private boolean acquireLeadership(String leaderId) {
-        Response<Boolean> response = consulClient.setKVValue(config.getLockKey(), leaderId, new PutParams() {{
+        Response<Boolean> response = consulClient.setKVValue(config.getLockKey(), leaderId, config.getToken(), new PutParams() {{
             setAcquireSession(createSession());
         }});
 
@@ -78,7 +80,7 @@ public class LeaderElectionService {
 
     private String createSession() {
         NewSession newSession = new NewSession();
-        newSession.setChecks(config.getChecks());
+        newSession.setChecks(healthCheckProvider.getChecks());
 
         Response<String> session =  consulClient.sessionCreate(newSession, QueryParams.DEFAULT);
         return session.getValue();
