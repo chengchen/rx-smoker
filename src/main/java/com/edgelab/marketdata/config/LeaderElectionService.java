@@ -36,7 +36,7 @@ public class LeaderElectionService {
     }
 
     @EventListener
-    private void startWhenReady(ApplicationReadyEvent event) {
+    public void startWhenReady(ApplicationReadyEvent event) {
         log.info("Starting leader election..");
         started.compareAndSet(false, true);
     }

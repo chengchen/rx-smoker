@@ -11,7 +11,3 @@ spring:
         data-key: config
         profile-separator: ':'
         format: yaml
-
-management:
-  security:
-    enabled: false

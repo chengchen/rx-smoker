@@ -9,12 +9,11 @@
     <packaging>jar</packaging>
 
     <name>RxSmoker</name>
-    <description>Reactive implementation sandbox</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.10.RELEASE</version>
+        <version>2.0.1.RELEASE</version>
     </parent>
 
     <properties>
@@ -22,8 +21,7 @@
         <java.version>1.8</java.version>
 
         <javax.inject.version>1</javax.inject.version>
-        <reactor.version>3.1.4.RELEASE</reactor.version>
-        <spring-cloud-dependencies.version>Edgware.SR2</spring-cloud-dependencies.version>
+        <spring-cloud-dependencies.version>Finchley.RC1</spring-cloud-dependencies.version>
     </properties>
 
     <dependencyManagement>
@@ -45,15 +43,15 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-feign</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-consul-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -92,7 +90,6 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>${reactor.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
