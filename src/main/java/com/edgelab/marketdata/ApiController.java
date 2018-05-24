@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 
-import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.IOException;
+import java.util.zip.GZIPInputStream;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,8 +36,8 @@ public class ApiController {
     }
 
     @GetMapping("/parse")
-    public Flux<TrackPoint> parse() throws FileNotFoundException {
-        InputStream inputStream = new BufferedInputStream(new FileInputStream("gpx.xml"));
+    public Flux<TrackPoint> parse() throws IOException {
+        GZIPInputStream inputStream = new GZIPInputStream(new FileInputStream("gpx.xml.gz"));
         return xmlParser.parse(inputStream, TrackPoint.class, "tp");
     }
 
