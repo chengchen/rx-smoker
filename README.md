@@ -2,4 +2,4 @@
 
 Spring Boot + Reactor
 
-http://localhost:8080/feeds
+http://localhost:8080/hello
